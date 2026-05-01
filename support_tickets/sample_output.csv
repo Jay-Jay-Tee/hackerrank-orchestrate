@@ -1,0 +1,35 @@
+issue,subject,company,response,product area,status,request type,product_area,justification,request_type
+I notice that people I assigned the test in October of 2025 have not received new tests. How long do the tests stay active in the system.,Test Active in the system,HackerRank,"After a test expires, invited candidates cannot access the test. The test remains active until it expires.",screen,replied,product_issue,hackerrank,Replied using retrieved docs. Confidence threshold met.,product_issue
+site is down & none of the pages are accessible,,,This issue requires human support. Please contact official support channels.,,escalated,bug,hackerrank,Escalated due to sensitive category (fraud/billing/access) or low confidence.,bug
+"I'm noticing that you all have many default versions of roles. (e.g. front end developer for react, angular, vue.js, etc.) What do you consider best practice 
+for when to create a new test versus create a variant of the test? What are the advantages and disadvantages of using variants?","When should I create a variant versus
+ have a different test?",HackerRank,I'm currently unable to access my knowledge base. Please contact a human agent for further assistance.,screen,replied,product_issue,claude,Replied using retrieved docs. Confidence threshold met.,product_issue
+"Hi there
+
+We have sent a candidate a Hackerrank assessment already, but we have been informed that they require extra time. As the assessment is 105 minutes, they need an extra 50% extra time added (so around 53 minutes) in addition.
+
+Please can you provide step-by-step instruction on how we are to reinvite them.
+
+Do we find their profile in 'Candidates' , put in Add time 53 minutes and then click 'reinvite' and send the email? The email to the candidate says 105 minutes as the duration though still so not sure how we can check?
+
+Thanks","How to reinvite candidate to Hackerrank 
+assessment and add extra time",HackerRank,"To add extra time to the candidate's assessment, follow these steps:
+
+1. Log in to your HackerRank for Work account using your credentials.
+2. Go to the **Tests** tab.
+3. Select the test you want to modify.
+4. Go to the **Candidates** tab.
+5. Select the checkbox next to the candidate(s) you want to accommodate time.
+6. Click **More > Add Time Accommodation.**
+7. Enter the accommodation percentage in multiples of five. Since the candidate needs an extra 50% of time, enter 50.
+8. Click **Save**.
+
+Note: After you apply time accommodation, the updated duration appears in the test invite email and on the test landing page before the candidate starts the test.",screen,replied,product_issue,hackerrank,Replied using retrieved docs. Confidence threshold met.,product_issue
+"i signed up using google login on hackerrank community , so i do not have a separate hackerrank password. please delete my account
+",,HackerRank,This issue requires human support. Please contact official support channels.,community,escalated,product_issue,hackerrank,Escalated due to sensitive category (fraud/billing/access) or low confidence.,product_issue
+"One of my claude conversations has some private info, i forgot to make a temporary chat, is there anything
+ else that can be done? like delete etc?",,Claude,"You can delete the specific conversation that contains the private info. When Claude references previous conversations, you'll see citations linking back to the original chats, along with the option to delete specific conversations.",privacy,replied,product_issue,claude,Replied using retrieved docs. Confidence threshold met.,product_issue
+What is the name of the actor in Iron Man?,"Urgent, please help",None ,This issue requires human support. Please contact official support channels.,conversation_management,replied,invalid,hackerrank,Escalated because retrieved corpus lacked sufficient information.,product_issue
+I bought Visa Traveller's Cheques from Citicorp and they were stolen in Lisbon last night. What do I do?,,Visa,This issue requires human support. Please contact official support channels.,travel_support,escalated,product_issue,visa,Escalated due to sensitive category (fraud/billing/access) or low confidence.,invalid
+Where can I report a lost or stolen Visa card from India?,Card stolen,Visa,This issue requires human support. Please contact official support channels.,general_support,escalated,product_issue,visa,Escalated due to sensitive category (fraud/billing/access) or low confidence.,invalid
+Thank you for helping me,,,I'm currently unable to access my knowledge base. Please contact a human agent for further assistance.,,replied,invalid,claude,Replied using retrieved docs. Confidence threshold met.,product_issue
