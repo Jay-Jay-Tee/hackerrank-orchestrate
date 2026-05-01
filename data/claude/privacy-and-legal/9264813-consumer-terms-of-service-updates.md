@@ -1,4 +1,4 @@
----
+  ---
 title: "Consumer Terms of Service Updates"
 title_slug: "consumer-terms-of-service-updates"
 source_url: "https://support.claude.com/en/articles/9264813-consumer-terms-of-service-updates"
