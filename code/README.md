@@ -44,15 +44,19 @@ python ingest.py
 This will create `faiss_index.bin` and `faiss_meta.json` in the `code/` directory.
 
 ### Step 2: Process Tickets
-Run the main triage pipeline. By default, it looks for `support_tickets/support_tickets.csv`.
+By default, the script runs in headless batch mode for automated grading. It will read `support_tickets/support_tickets.csv` and show a beautifully styled progress bar.
 
 ```bash
 python main.py
 ```
 
-To test against the sample dataset instead:
+### Step 3: Interactive TUI (Bonus!)
+To access the interactive Terminal User Interface (TUI), run the script with the `--ui` flag. 
+
 ```bash
-python main.py --input support_tickets/sample_support_tickets.csv --output support_tickets/sample_output.csv
+python main.py --ui
 ```
 
-The script will display a progress bar and output the final predictions to the designated output CSV.
+This launches a HackerRank-themed menu where you can:
+1. **Chatbot Mode**: Type issues interactively and see how the agent routes, escalates, and justifies its decisions in real-time.
+2. **Batch Process**: Visually run the dataset evaluation.

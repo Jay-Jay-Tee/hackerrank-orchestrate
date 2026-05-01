@@ -87,7 +87,8 @@ Respond ONLY with a JSON object. No markdown, no explanations.
     "internal_request_type": "...",
     "product_area": "...",
     "decision": "answer or escalate",
-    "confidence": 0.9
+    "confidence": 0.9,
+    "justification": "One brief sentence explaining why you chose this request type and decision."
 }}"""
     
     # generate_json forces Ollama into JSON mode
@@ -98,7 +99,8 @@ Respond ONLY with a JSON object. No markdown, no explanations.
         "internal_request_type": result.get("internal_request_type", "other"),
         "product_area": result.get("product_area", "unknown"),
         "decision": result.get("decision", "escalate"),
-        "confidence": float(result.get("confidence", 0.0))
+        "confidence": float(result.get("confidence", 0.0)),
+        "justification": result.get("justification", "Default classification fallback.")
     }
 
 def apply_safety_rules(classification: dict) -> dict:
@@ -108,21 +110,28 @@ def apply_safety_rules(classification: dict) -> dict:
     
     if req_type in esc_types:
         classification["decision"] = "escalate"
+        classification["justification"] = "Escalated for safety: " + classification.get("justification", "")
     
     if classification.get("confidence", 1.0) < 0.6:
         classification["decision"] = "escalate"
+        classification["justification"] = "Escalated due to low confidence: " + classification.get("justification", "")
         
     return classification
 
-def generate_final_response(issue: str, context: str, decision: str) -> tuple:
+def generate_final_response(issue: str, context: str, decision: str, justification: str) -> tuple:
     """Step 3 & 4: Response Generation."""
+    
+    action_instruction = "Answer the user's issue using ONLY the retrieved documents provided below."
     if decision == "escalate":
-        response = "This issue requires human support. Please contact official support channels."
-        justification = "Escalated due to sensitive category (fraud/billing/access) or low confidence."
-        return response, justification
+        action_instruction = "This issue has been flagged for human escalation because it is sensitive or unsupported. You MUST politely refuse to answer the user's specific request. Instead, inform them empathetically that you are transferring their ticket to a human support agent. Do NOT attempt to solve their problem."
 
-    prompt = f"""You are a support agent. Answer the issue using ONLY the retrieved documents.
-If the documents are insufficient, say "I cannot answer this" so we can escalate it.
+    prompt = f"""You are a warm, friendly, and empathetic customer support agent. 
+
+CRITICAL RULES:
+1. {action_instruction}
+2. Be extremely concise and direct. Keep your answer under 4 sentences. Do NOT write long essays.
+3. Start with a friendly greeting (e.g., "Hi there! I'm sorry you're dealing with this.").
+4. If the documents do not explicitly contain the answer, say exactly: "I cannot answer this" so we can escalate it.
 
 DOCUMENTS:
 {context}
@@ -130,18 +139,16 @@ DOCUMENTS:
 USER ISSUE:
 {issue}
 
-Provide ONLY the helpful response text, grounded in the documents. Do not add outside knowledge."""
+Helpful Response:"""
     
     response = generate_text(prompt)
     
     if "cannot answer" in response.lower():
         decision = "escalate"
         response = "This issue requires human support. Please contact official support channels."
-        justification = "Escalated because retrieved corpus lacked sufficient information."
-    else:
-        justification = "Replied using retrieved docs. Confidence threshold met."
+        justification = "Escalated because retrieved corpus lacked sufficient information to answer safely."
         
-    return response, justification
+    return response, justification, decision
 
 def process_ticket(issue: str, subject: str, company: str) -> dict:
     """Main pipeline wrapper for a single ticket."""
@@ -156,11 +163,11 @@ def process_ticket(issue: str, subject: str, company: str) -> dict:
     context = retrieve_context(f"{subject} {issue}", company)
     
     # 4. Generate
-    response, justification = generate_final_response(issue, context, classification["decision"])
+    response, justification, final_decision = generate_final_response(issue, context, classification["decision"], classification["justification"])
     
     # 5. Output Formatting
     # Ensure decision conforms to allowed 'status' values
-    status = "escalated" if classification["decision"] == "escalate" else "replied"
+    status = "escalated" if final_decision == "escalate" else "replied"
     
     return {
         "status": status,
