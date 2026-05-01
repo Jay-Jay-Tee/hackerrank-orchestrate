@@ -4,10 +4,14 @@
 *.pem
 *.key
 
+# Data & Caches
+corpus.pkl
+
 # deps
 node_modules/
 .pnpm-store/
 .venv/
+
 venv/
 __pycache__/
 *.pyc

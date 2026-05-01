@@ -1,3 +1,10 @@
+"""
+main.py
+
+Terminal User Interface and batch processing orchestrator.
+Provides a chatbot mode for live testing and a batch mode to evaluate
+the agent against the support_tickets.csv dataset.
+"""
 import sys
 import subprocess
 import os
@@ -30,7 +37,7 @@ try:
     from rich.progress import Progress, SpinnerColumn, BarColumn, TextColumn, TimeElapsedColumn
     from rich.prompt import Prompt, Confirm
     from rich.table import Table
-    # We import agent here so its external dependencies (like faiss) trigger the ImportError block
+    # We import agent here so its external dependencies trigger the ImportError block
     from agent import process_ticket
 except ImportError:
     install_dependencies()
@@ -43,14 +50,11 @@ def preflight_checks(input_path):
     load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
 
     errors = []
-    api_key = os.getenv("OPENAI_API_KEY", "").strip()
-    if not api_key:
-        errors.append("OPENAI_API_KEY is not set in .env or the current environment.")
-
-    index_path = os.path.join(os.path.dirname(__file__), "faiss_index.bin")
-    meta_path = os.path.join(os.path.dirname(__file__), "faiss_meta.json")
-    if not os.path.exists(index_path) or not os.path.exists(meta_path):
-        errors.append("FAISS artifacts are missing. Run 'python ingest.py' from the code/ directory first.")
+    # gemini_key = os.getenv("GEMINI_API_KEY", "").strip()
+    openai_key = os.getenv("OPENAI_API_KEY", "").strip()
+    local_url = os.getenv("LOCAL_BASE_URL", "").strip()
+    if not openai_key and not local_url:
+        console.print("[yellow]No API key detected. Running in fully local mode.[/yellow]")
 
     if not os.path.exists(input_path):
         errors.append(f"Input file not found at {input_path}")
@@ -61,7 +65,7 @@ def preflight_checks(input_path):
             console.print(f"[bold red]- {error}[/bold red]")
         return False
 
-    console.print("[bold green]Startup check passed:[/bold green] dependencies, .env, and FAISS artifacts are ready.")
+    console.print("[bold green]Startup check passed:[/bold green] dependencies, .env, and inputs are ready.")
     return True
 
 # ==============================================================================
@@ -83,11 +87,11 @@ def interactive_mode():
     dev_mode = Confirm.ask(f"[{HR_GREEN}]Enable Dev Mode (shows internal routing/justification)?[/{HR_GREEN}]", default=True)
     
     while True:
-        issue = Prompt.ask("\n[bold white]Describe your issue (or type 'exit' to quit)[/bold white]")
-        if issue.lower() in ['exit', 'quit']:
+        subject = Prompt.ask("\n[bold white]Subject (or type 'exit' to quit)[/bold white]", default="General inquiry")
+        if subject.lower() in ['exit', 'quit']:
             break
 
-        subject = Prompt.ask("[bold white]Subject[/bold white]", default="General inquiry")
+        issue = Prompt.ask("[bold white]Describe your issue[/bold white]")
             
         company = Prompt.ask("[bold white]Which product? (HackerRank/Claude/Visa/None)[/bold white]", default="None")
         
