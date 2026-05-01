@@ -1,21 +1,72 @@
+import sys
+import subprocess
 import os
 import argparse
-import pandas as pd
-import time
-from rich.console import Console
-from rich.panel import Panel
-from rich.progress import Progress, SpinnerColumn, BarColumn, TextColumn, TimeElapsedColumn
-from rich.prompt import Prompt, Confirm
-from rich.text import Text
-from rich.table import Table
 
-from agent import process_ticket
+from dotenv import load_dotenv
+
+# ==============================================================================
+# AGENT AUTONOMY STAGE 1: Self-Healing Dependencies
+# ==============================================================================
+def install_dependencies():
+    print("\n[Agent Autonomy] Missing dependencies detected. Installing automatically...")
+    req_path = os.path.join(os.path.dirname(__file__), "requirements.txt")
+    
+    try:
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", req_path])
+        print("[Agent Autonomy] Dependencies installed successfully. Restarting agent...\n")
+        # Restart the script
+        os.execv(sys.executable, ['python'] + sys.argv)
+    except Exception as e:
+        print(f"\n[Fatal Error] Failed to auto-install dependencies: {e}")
+        print(f"Please run 'pip install -r {req_path}' manually.")
+        sys.exit(1)
+
+try:
+    import pandas as pd
+    from dotenv import load_dotenv
+    from rich.console import Console
+    from rich.panel import Panel
+    from rich.progress import Progress, SpinnerColumn, BarColumn, TextColumn, TimeElapsedColumn
+    from rich.prompt import Prompt, Confirm
+    from rich.table import Table
+    # We import agent here so its external dependencies (like faiss) trigger the ImportError block
+    from agent import process_ticket
+except ImportError:
+    install_dependencies()
 
 console = Console()
-
-# HackerRank green
 HR_GREEN = "#00EA64"
 
+
+def preflight_checks(input_path):
+    load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
+
+    errors = []
+    api_key = os.getenv("OPENAI_API_KEY", "").strip()
+    if not api_key:
+        errors.append("OPENAI_API_KEY is not set in .env or the current environment.")
+
+    index_path = os.path.join(os.path.dirname(__file__), "faiss_index.bin")
+    meta_path = os.path.join(os.path.dirname(__file__), "faiss_meta.json")
+    if not os.path.exists(index_path) or not os.path.exists(meta_path):
+        errors.append("FAISS artifacts are missing. Run 'python ingest.py' from the code/ directory first.")
+
+    if not os.path.exists(input_path):
+        errors.append(f"Input file not found at {input_path}")
+
+    if errors:
+        console.print("\n[bold red]Startup check failed:[/bold red]")
+        for error in errors:
+            console.print(f"[bold red]- {error}[/bold red]")
+        return False
+
+    console.print("[bold green]Startup check passed:[/bold green] dependencies, .env, and FAISS artifacts are ready.")
+    return True
+
+# ==============================================================================
+# TERMINAL USER INTERFACE
+# ==============================================================================
 def display_banner():
     console.print(Panel.fit(
         f"[{HR_GREEN} bold]HackerRank Orchestrate - AI Triage Agent[/{HR_GREEN} bold]\n[white]Terminal User Interface (TUI)[/white]",
@@ -27,7 +78,7 @@ def interactive_mode():
     os.system('cls' if os.name == 'nt' else 'clear')
     display_banner()
     console.print(f"\n[{HR_GREEN} bold]=== Interactive Chatbot Mode ===[/{HR_GREEN} bold]")
-    console.print("[dim]Type your issue directly to simulate a live support ticket.[/dim]\n")
+    console.print("[dim]Type your subject and issue to simulate a live support ticket.[/dim]\n")
     
     dev_mode = Confirm.ask(f"[{HR_GREEN}]Enable Dev Mode (shows internal routing/justification)?[/{HR_GREEN}]", default=True)
     
@@ -35,12 +86,14 @@ def interactive_mode():
         issue = Prompt.ask("\n[bold white]Describe your issue (or type 'exit' to quit)[/bold white]")
         if issue.lower() in ['exit', 'quit']:
             break
+
+        subject = Prompt.ask("[bold white]Subject[/bold white]", default="General inquiry")
             
         company = Prompt.ask("[bold white]Which product? (HackerRank/Claude/Visa/None)[/bold white]", default="None")
         
         console.print()
         with console.status(f"[{HR_GREEN}]Agent is analyzing corpus and routing ticket...[/{HR_GREEN}]", spinner="dots"):
-            result = process_ticket(issue, "User Chat", company)
+            result = process_ticket(issue, subject, company)
             
         # Display Response
         console.print(Panel(
@@ -121,13 +174,14 @@ def main():
     input_path = os.path.abspath(args.input)
     output_path = os.path.abspath(args.output)
 
+    if not preflight_checks(input_path):
+        sys.exit(1)
+
     if not args.ui:
-        # Default behavior: run the batch job automatically for the evaluators
         display_banner()
         batch_mode(input_path, output_path)
         return
 
-    # Interactive UI Menu
     os.system('cls' if os.name == 'nt' else 'clear')
     display_banner()
     
