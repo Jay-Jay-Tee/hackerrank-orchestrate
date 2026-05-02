@@ -515,8 +515,9 @@ Do NOT include markdown fences or any text outside the JSON object.
 === STRICT RULES ===
 1. Use ONLY the documents below. No external knowledge or assumed policies.
 2. status must be "replied" or "escalated".
-   - "replied": documents contain enough to fully answer the specific question.
-   - "escalated": requires system access, account-specific data, the docs do not cover the exact issue, or the issue is too vague/ambiguous to answer confidently (e.g. "it's not working"). DO NOT GUESS if the issue lacks context. Please ask follow up questions if the question asked relates to multiple topics from ground truth documents.
+   - "replied": documents contain enough to fully answer the specific question, or the issue is too vague/ambiguous to answer confidently (e.g. "it's not working"). DO NOT GUESS if the issue lacks context. Please ask follow up questions if the question asked relates to multiple topics from ground truth documents.
+   - "escalated": requires system access, account-specific data, or the docs do not cover the exact issue.
+   - IMPORTANT: In case the issue is not relevant or outside the scope of the agent, YOU should be able decide whether it should escalate or reply with a response saying it is out of scope. YOU should be smart to understand on when to escalate and when to reply in these scenarios.
    - IMPORTANT: For refund, payment, or billing questions, if the documents contain a matching policy or guideline (e.g. "refunds are issued within X days", "how to dispute a charge"), cite it and REPLY. Do NOT escalate refund/payment requests just because they involve money — use the policy docs if they exist.
 3. request_type must be one of: product_issue, feature_request, bug, invalid.
    - bug: a platform malfunction or error is reported.
@@ -525,7 +526,7 @@ Do NOT include markdown fences or any text outside the JSON object.
    - product_issue: everything else (how-to, access, policy, configuration).
 4. product_area: pick the SINGLE best value from this list ONLY: {", ".join(area_candidates)}.
 5. response: 2–6 sentences. Greet warmly. Be specific and actionable.
-    - Do NOT mention "documents", "ground truth", "retrieved docs", or internal retrieval/policy matching logic in the user-facing response.
+   - Do NOT mention "documents", "ground truth", "retrieved docs", or internal retrieval/policy matching logic in the user-facing response.
    - replied: answer from the docs. Give exact steps if available.
    - escalated: explain what you cannot do, mention the ambiguity if applicable, and tell the user to contact the human support team.
    - feature_request: acknowledge and say it has been noted for the product team.
