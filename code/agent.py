@@ -525,6 +525,7 @@ Do NOT include markdown fences or any text outside the JSON object.
    - product_issue: everything else (how-to, access, policy, configuration).
 4. product_area: pick the SINGLE best value from this list ONLY: {", ".join(area_candidates)}.
 5. response: 2–6 sentences. Greet warmly. Be specific and actionable.
+    - Do NOT mention "documents", "ground truth", "retrieved docs", or internal retrieval/policy matching logic in the user-facing response.
    - replied: answer from the docs. Give exact steps if available.
    - escalated: explain what you cannot do, mention the ambiguity if applicable, and tell the user to contact the human support team.
    - feature_request: acknowledge and say it has been noted for the product team.
